@@ -1,0 +1,7 @@
+org: sammyrobensparadise
+app: verify-server-1
+component: express
+name: express-starter
+
+inputs:
+  src: ./
