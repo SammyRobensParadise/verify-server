@@ -4,6 +4,7 @@ const express = require('express')
 var AWS = require('aws-sdk')
 const { v4: uuidv4 } = require('uuid')
 const bodyParser = require('body-parser')
+require('dotenv').config()
 // express
 const app = express()
 const port = 8000
@@ -17,6 +18,22 @@ AWS.config.update({
   // endpoint: 'http://localhost:8000',
 })
 
+const verifyAppCall = (req, res, next) => {
+  const bearerHeader = req.headers['authorization']
+  if (bearerHeader) {
+    const bearer = bearerHeader.split(' ')
+    const bearerToken = bearer[1]
+    debugger
+    if (bearerToken === process.env.SECURE_KEY) {
+      next()
+    } else {
+      res.sendStatus(403)
+    }
+  } else {
+    res.sendStatus(403)
+  }
+}
+
 // constants
 var docClient = new AWS.DynamoDB.DocumentClient()
 // http codes
@@ -24,7 +41,7 @@ const HTTP_OK_200 = 200
 const SUCCESS = 'success'
 const TABLE = 'aws-dynamodb-starter'
 // Routes
-app.get('/', (req, res) => {
+app.get('/', verifyAppCall, (req, res) => {
   res.send({
     message: `Request received: ${req.method} - ${req.path}`,
     status: HTTP_OK_200,
@@ -32,7 +49,7 @@ app.get('/', (req, res) => {
   })
 })
 
-app.post('/user/add', (req, res) => {
+app.post('/user/add', verifyAppCall, (req, res) => {
   let d = new Date()
   const user_email = req.body.email
   const user_id = req.body.sub
@@ -59,7 +76,7 @@ app.post('/user/add', (req, res) => {
   })
 })
 
-app.get('/user', (req, res) => {
+app.get('/user', verifyAppCall, (req, res) => {
   const user_email = req.body.email
   const user_id = req.body.sub
   const params = {
@@ -77,6 +94,8 @@ app.get('/user', (req, res) => {
     }
   })
 })
+
+app.post('/user/url')
 
 // Error handler
 app.use((err, req, res) => {
