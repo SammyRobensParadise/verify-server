@@ -37,7 +37,7 @@ app.post('/user/add', (req, res) => {
   const user_email = req.body.email
   const user_id = req.body.sub
   const date = d.toISOString()
-  var params = {
+  const params = {
     TableName: TABLE,
     Item: {
       ID: user_id,
@@ -55,6 +55,25 @@ app.post('/user/add', (req, res) => {
     } else {
       console.log('Added item:', JSON.stringify(data, null, 2))
       res.send({ data: data, parameters: params, status: HTTP_OK_200, success: SUCCESS })
+    }
+  })
+})
+
+app.get('/user', (req, res) => {
+  const user_email = req.body.email
+  const user_id = req.body.sub
+  const params = {
+    TableName: TABLE,
+    Key: {
+      ID: user_id,
+      email: user_email,
+    },
+  }
+  docClient.get(params, (err, data) => {
+    if (err) {
+      res.send(err)
+    } else {
+      res.send({ data: data, status: HTTP_OK_200, success: SUCCESS })
     }
   })
 })
