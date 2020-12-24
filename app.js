@@ -62,7 +62,7 @@ app.post('/user/add', verifyAppCall, (req, res) => {
       info: {
         uuid: uuidv4(),
         date_created: date,
-        image_urls: [],
+        images: [],
       },
     },
   }
@@ -95,7 +95,24 @@ app.get('/user', verifyAppCall, (req, res) => {
   })
 })
 
-app.post('/user/url')
+app.get('/user/images', verifyAppCall, (req, res) => {
+  const user_email = req.body.email
+  const user_id = req.body.sub
+  const params = {
+    TableName: TABLE,
+    Key: {
+      ID: user_id,
+      email: user_email,
+    },
+  }
+  docClient.get(params, (err, data) => {
+    if (err) {
+      res.send(err)
+    } else {
+      res.send({ data: data.Item.info.images, status: HTTP_OK_200, success: SUCCESS })
+    }
+  })
+})
 
 // Error handler
 app.use((err, req, res) => {
