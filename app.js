@@ -35,13 +35,15 @@ app.get('/', (req, res) => {
 app.post('/user/add', (req, res) => {
   let d = new Date()
   const user_email = req.body.email
+  const user_id = req.body.sub
   const date = d.toISOString()
   var params = {
     TableName: TABLE,
     Item: {
-      ID: uuidv4(),
+      ID: user_id,
       email: user_email,
       info: {
+        uuid: uuidv4(),
         date_created: date,
         image_urls: [],
       },
