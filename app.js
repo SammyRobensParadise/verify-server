@@ -15,7 +15,6 @@ app.use(bodyParser.urlencoded({ extended: true })) // support encoded bodies
 // aws configs
 AWS.config.update({
   region: 'us-east-1',
-  // endpoint: 'http://localhost:8000',
 })
 
 const verifyAppCall = (req, res, next) => {
