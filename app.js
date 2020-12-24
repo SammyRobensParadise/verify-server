@@ -1,11 +1,15 @@
 'use strict'
-
 // eslint-disable-next-line import/no-unresolved
 const express = require('express')
 var AWS = require('aws-sdk')
 const { v4: uuidv4 } = require('uuid')
+const bodyParser = require('body-parser')
+// express
 const app = express()
 const port = 8000
+
+app.use(bodyParser.json()) // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true })) // support encoded bodies
 
 // aws configs
 AWS.config.update({
@@ -15,21 +19,28 @@ AWS.config.update({
 
 // constants
 var docClient = new AWS.DynamoDB.DocumentClient()
+// http codes
+const HTTP_OK_200 = 200
+const SUCCESS = 'success'
 const TABLE = 'aws-dynamodb-starter'
 // Routes
 app.get('/', (req, res) => {
-  res.send({ message: `Request received: ${req.method} - ${req.path}` })
+  res.send({
+    message: `Request received: ${req.method} - ${req.path}`,
+    status: HTTP_OK_200,
+    success: SUCCESS,
+  })
 })
 
-app.post('/user/addUser', async (req, res) => {
+app.post('/user/add', (req, res) => {
+  const user_email = req.body.email
   var params = {
     TableName: TABLE,
     Item: {
       ID: uuidv4(),
-      email: 'testemail@mail.com',
+      email: user_email,
       info: {
-        ImageURL: '#',
-        description: 'testing',
+        image_urls: [],
       },
     },
   }
@@ -38,10 +49,11 @@ app.post('/user/addUser', async (req, res) => {
       res.send(err)
     } else {
       console.log('Added item:', JSON.stringify(data, null, 2))
-      res.send({ data: data, parameters: params })
+      res.send({ data: data, parameters: params, status: HTTP_OK_200, success: SUCCESS })
     }
   })
 })
+
 // Error handler
 app.use((err, req, res) => {
   console.error(err)
