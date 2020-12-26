@@ -4,6 +4,7 @@ const express = require('express')
 var AWS = require('aws-sdk')
 const { v4: uuidv4 } = require('uuid')
 const bodyParser = require('body-parser')
+const { default: axios } = require('axios')
 require('dotenv').config()
 // express
 const app = express()
@@ -22,7 +23,6 @@ const verifyAppCall = (req, res, next) => {
   if (bearerHeader) {
     const bearer = bearerHeader.split(' ')
     const bearerToken = bearer[1]
-    debugger
     if (bearerToken === process.env.SECURE_KEY) {
       next()
     } else {
@@ -48,6 +48,7 @@ app.get('/', verifyAppCall, (req, res) => {
   })
 })
 
+// USER ENDPOINTS
 app.post('/user/add', verifyAppCall, (req, res) => {
   let d = new Date()
   const user_email = req.body.email
@@ -112,6 +113,20 @@ app.get('/user/images', verifyAppCall, (req, res) => {
     }
   })
 })
+
+app.get('/user/get-image-url', verifyAppCall, async (req, res) => {
+  try {
+    const raw = await axios.get(
+      'https://7kdqv9hdsd.execute-api.us-east-1.amazonaws.com/default/getPresignedURL',
+    )
+    debugger
+    res.send(raw.data)
+  } catch (err) {
+    res.send(err)
+  }
+})
+
+app.get('/user/retrieve-image-text', verifyAppCall, async (req, res) => {})
 
 // Error handler
 app.use((err, req, res) => {

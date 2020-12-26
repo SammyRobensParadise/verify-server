@@ -7,7 +7,7 @@ There may still be plans to make this more public later on.
 
 ## Stack 🤖
 
-1. Express.js application running on AWS
+1. Express application running on AWS
 2. AWS lambda functions for communication between services.
 3. DynamoDB (NoSQL) database(s)
 
@@ -65,4 +65,10 @@ body: {
     sub: sub,
     email: email
 }
+```
+
+### Image Structure:
+
+```js
+images: [{ ID: `##############################`, Date: `ISOdate` }, ...]
 ```
