@@ -10,9 +10,9 @@ require('dotenv').config()
 const app = express()
 const port = 8000
 
-app.use(bodyParser.json()) // support json encoded bodies
-app.use(bodyParser.urlencoded({ extended: true })) // support encoded bodies
-
+app.use(bodyParser.json({ limit: '50mb' })) // support json encoded bodies
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true })) // support encoded bodies
+app.use(express.json())
 // aws configs
 AWS.config.update({
   region: 'us-east-1',
@@ -119,11 +119,17 @@ app.get('/user/get-image-url', verifyAppCall, async (req, res) => {
     const raw = await axios.get(
       'https://7kdqv9hdsd.execute-api.us-east-1.amazonaws.com/default/getPresignedURL',
     )
-    debugger
     res.send(raw.data)
   } catch (err) {
     res.send(err)
   }
+})
+
+app.put('/upload', verifyAppCall, async (req, res) => {
+  const presigignedURL = await axios.get(
+    'https://7kdqv9hdsd.execute-api.us-east-1.amazonaws.com/default/getPresignedURL',
+  )
+  debugger
 })
 
 app.get('/user/retrieve-image-text', verifyAppCall, async (req, res) => {})
