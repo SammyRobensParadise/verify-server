@@ -125,13 +125,6 @@ app.get('/user/get-image-url', verifyAppCall, async (req, res) => {
   }
 })
 
-app.put('/upload', verifyAppCall, async (req, res) => {
-  const presigignedURL = await axios.get(
-    'https://7kdqv9hdsd.execute-api.us-east-1.amazonaws.com/default/getPresignedURL',
-  )
-  debugger
-})
-
 app.get('/user/retrieve-image-text', verifyAppCall, async (req, res) => {})
 
 // Error handler
