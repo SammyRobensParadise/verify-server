@@ -5,6 +5,7 @@ var AWS = require('aws-sdk')
 const { v4: uuidv4 } = require('uuid')
 const bodyParser = require('body-parser')
 const { default: axios } = require('axios')
+
 require('dotenv').config()
 // express
 const app = express()
@@ -18,7 +19,7 @@ AWS.config.update({
   region: 'us-east-1',
 })
 
-const verifyAppCall = (req, res, next) => {
+const secure = (req, res, next) => {
   const bearerHeader = req.headers['authorization']
   if (bearerHeader) {
     const bearer = bearerHeader.split(' ')
@@ -35,12 +36,18 @@ const verifyAppCall = (req, res, next) => {
 
 // constants
 var docClient = new AWS.DynamoDB.DocumentClient()
+var rekognition = new AWS.Rekognition({
+  apiVersion: '2016-06-27',
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: 'us-east-1',
+})
 // http codes
 const HTTP_OK_200 = 200
 const SUCCESS = 'success'
 const TABLE = 'aws-dynamodb-starter'
 // Routes
-app.get('/', verifyAppCall, (req, res) => {
+app.get('/', secure, (req, res) => {
   res.send({
     message: `Request received: ${req.method} - ${req.path}`,
     status: HTTP_OK_200,
@@ -49,7 +56,7 @@ app.get('/', verifyAppCall, (req, res) => {
 })
 
 // USER ENDPOINTS
-app.post('/user/add', verifyAppCall, (req, res) => {
+app.post('/user/add', secure, (req, res) => {
   let d = new Date()
   const user_email = req.body.email
   const user_id = req.body.sub
@@ -76,7 +83,7 @@ app.post('/user/add', verifyAppCall, (req, res) => {
   })
 })
 
-app.get('/user', verifyAppCall, (req, res) => {
+app.get('/user', secure, (req, res) => {
   const user_email = req.body.email
   const user_id = req.body.sub
   const params = {
@@ -95,7 +102,7 @@ app.get('/user', verifyAppCall, (req, res) => {
   })
 })
 
-app.get('/user/images', verifyAppCall, (req, res) => {
+app.get('/user/images', secure, (req, res) => {
   const user_email = req.body.email
   const user_id = req.body.sub
   const params = {
@@ -114,7 +121,7 @@ app.get('/user/images', verifyAppCall, (req, res) => {
   })
 })
 
-app.get('/user/get-image-url', verifyAppCall, async (req, res) => {
+app.get('/user/get-image-url', secure, async (req, res) => {
   try {
     const raw = await axios.get(
       'https://7kdqv9hdsd.execute-api.us-east-1.amazonaws.com/default/getPresignedURL',
@@ -125,7 +132,23 @@ app.get('/user/get-image-url', verifyAppCall, async (req, res) => {
   }
 })
 
-app.get('/user/retrieve-image-text', verifyAppCall, async (req, res) => {})
+app.post('/user/retrieve-image-text', secure, async (req, res) => {
+  const { Key, Bucket } = req.body
+  const params = { Image: { S3Object: { Bucket: Bucket, Name: Key } } }
+  const result = await new Promise((resolve, reject) => {
+    rekognition.detectText(params, (err, data) => (err == null ? resolve(data) : reject(err)))
+  })
+  if (result.err) {
+    res.status(500).send('Unable to Detect Text')
+  } else {
+    const foundText = result.detectText.length > 0
+    if (foundText) {
+      res.status(200).send(result)
+    } else {
+      res.status(200).send('No Text Detected')
+    }
+  }
+})
 
 // Error handler
 app.use((err, req, res) => {
