@@ -1,5 +1,4 @@
 'use strict'
-// eslint-disable-next-line import/no-unresolved
 const express = require('express')
 var AWS = require('aws-sdk')
 const { v4: uuidv4 } = require('uuid')
@@ -14,7 +13,7 @@ const port = 8000
 app.use(bodyParser.json({ limit: '50mb' })) // support json encoded bodies
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true })) // support encoded bodies
 app.use(express.json())
-// aws configs
+
 AWS.config.update({
   region: 'us-east-1',
 })
@@ -34,7 +33,6 @@ const secure = (req, res, next) => {
   }
 }
 
-// constants
 var docClient = new AWS.DynamoDB.DocumentClient()
 var rekognition = new AWS.Rekognition({
   apiVersion: '2016-06-27',
