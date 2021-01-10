@@ -141,7 +141,7 @@ app.post('/user/retrieve-image-text', secure, async (req, res) => {
   if (result.err) {
     res.status(500).send('Unable to Detect Text')
   } else {
-    const foundText = result.detectText.length > 0
+    const foundText = result.TextDetections.length > 0
     if (foundText) {
       res.status(200).send(result)
     } else {
