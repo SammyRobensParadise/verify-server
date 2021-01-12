@@ -4,7 +4,7 @@ var AWS = require('aws-sdk')
 const { v4: uuidv4 } = require('uuid')
 const bodyParser = require('body-parser')
 const { default: axios } = require('axios')
-
+const env = require('./env')
 require('dotenv').config()
 // express
 const app = express()
@@ -36,8 +36,8 @@ const secure = (req, res, next) => {
 var docClient = new AWS.DynamoDB.DocumentClient()
 var rekognition = new AWS.Rekognition({
   apiVersion: '2016-06-27',
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  accessKeyId: env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
   region: 'us-east-1',
 })
 // http codes
@@ -133,19 +133,13 @@ app.get('/user/get-image-url', secure, async (req, res) => {
 app.post('/user/retrieve-image-text', secure, async (req, res) => {
   const { Key, Bucket } = req.body
   const params = { Image: { S3Object: { Bucket: Bucket, Name: Key } } }
-  const result = await new Promise((resolve, reject) => {
-    rekognition.detectText(params, (err, data) => (err == null ? resolve(data) : reject(err)))
-  })
-  if (result.err) {
-    res.status(500).send('Unable to Detect Text')
-  } else {
-    const foundText = result.TextDetections.length > 0
-    if (foundText) {
-      res.status(200).send(result)
+  rekognition.detectText(params, (err, data) => {
+    if (err) {
+      res.status(500).send(`${err}`)
     } else {
-      res.status(200).send('No Text Detected')
+      res.status(200).send(data)
     }
-  }
+  })
 })
 
 // Error handler
