@@ -40,6 +40,13 @@ var rekognition = new AWS.Rekognition({
     secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
     region: 'us-east-1',
 })
+var comprehend = new AWS.Comprehend({
+    apiVersion: '2017-11-27',
+    accessKeyId: env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
+    region: 'us-east-1',
+})
+
 // http codes
 const HTTP_OK_200 = 200
 const SUCCESS = 'success'
@@ -155,21 +162,41 @@ app.post('/user/retrieve-image-text', secure, async (req, res) => {
 app.post('/user/retrieve-text-data', secure, async (req, res) => {
     const MAX_QUERY_LENGTH = 1500
     const { TextDetections } = req.body.data
-    const query = 'dogs'
-    debugger
-    const URI = encodeURIComponent(query)
-    if (URI.length > MAX_QUERY_LENGTH) {
-        res.status(414).send('Query string too long')
+    const filteredTextDetections = TextDetections.filter(
+        (data) => data.Confidence > 97
+    )
+    const filteredText = filteredTextDetections.map((data) => {
+        return data.DetectedText
+    })
+    const paramStringToMLSearch = filteredText.join(' ')
+    const params = {
+        LanguageCode: 'en', // start by only verifying english posts
+        Text: paramStringToMLSearch,
     }
-    const config = {
-        headers: { 'Ocp-Apim-Subscription-Key': env.AZURE_API_KEY_1 },
-    }
-    const raw = await axios.get(`${env.BING_ENDPOINT}?q=${URI}`, config)
-    if (raw.status !== HTTP_OK_200) {
-        res.status(raw.status).send('Search Encountered an Error')
-    } else {
-        res.status(200).send(raw.data)
-    }
+    comprehend.detectKeyPhrases(params, async (err, data) => {
+        if (err) {
+            res.status(500).send(`AWS ML Error ${err}`)
+        } else {
+            console.log(data)
+            const dataText = data.KeyPhrases.map((phrase) => {
+                return phrase.Text
+            })
+            const query = dataText.join(' ')
+            const URI = encodeURIComponent(query)
+            if (URI.length > MAX_QUERY_LENGTH) {
+                res.status(414).send('Query string too long')
+            }
+            const config = {
+                headers: { 'Ocp-Apim-Subscription-Key': env.AZURE_API_KEY_1 },
+            }
+            const raw = await axios.get(`${env.BING_ENDPOINT}?q=${URI}`, config)
+            if (raw.status !== HTTP_OK_200) {
+                res.status(raw.status).send('Search Encountered an Error')
+            } else {
+                res.status(200).send(raw.data)
+            }
+        }
+    })
 })
 
 app.use((err, req, res, next) => {
