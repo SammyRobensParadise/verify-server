@@ -44,6 +44,7 @@ const HTTP_OK_200 = 200
 const SUCCESS = 'success'
 const TABLE = 'aws-dynamodb-starter'
 // Routes
+
 app.get('/', secure, (req, res) => {
     res.send({
         message: `Request received: ${req.method} - ${req.path}`,
