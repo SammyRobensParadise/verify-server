@@ -2,6 +2,13 @@ org: sammyrobensparadise
 app: verify-server-1
 component: express
 name: express-starter
-
+environment:
+    AWS_ACCESS_KEY_ID: ${param:AWS_ACCESS_KEY_ID}
+    AWS_SECRET_ACCESS_KEY: ${param:AWS_SECRET_ACCESS_KEY}
+    SECURE_KEY: ${param:SECURE_KEY}
+    S3_PRESIGNED_URL: ${param:S3_PRESIGNED_URL}
+    AZURE_API_KEY_1: ${param:AZURE_API_KEY_1}
+    BING_ENDPOINT: ${param:BING_ENDPOINT}
+    BING_LOCATION: ${param:BING_LOCATION}
 inputs:
-  src: ./
+    src: ./

@@ -37,8 +37,8 @@ const secure = (req, res, next) => {
 var docClient = new AWS.DynamoDB.DocumentClient()
 var rekognition = new AWS.Rekognition({
     apiVersion: '2016-06-27',
-    accessKeyId: env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
+    accessKeyId: process.envAWS_ACCESS_KEY_ID,
+    secretAccessKey: process.envAWS_SECRET_ACCESS_KEY,
     region: 'us-east-1',
 })
 // http codes
@@ -160,9 +160,9 @@ app.post('/user/retrieve-text-data', secure, async (req, res) => {
         res.status(414).send('Query string too long')
     }
     const config = {
-        headers: { 'Ocp-Apim-Subscription-Key': env.AZURE_API_KEY_1 },
+        headers: { 'Ocp-Apim-Subscription-Key': process.envAZURE_API_KEY_1 },
     }
-    const raw = await axios.get(`${env.BING_ENDPOINT}?q=${URI}`, config)
+    const raw = await axios.get(`${process.envBING_ENDPOINT}?q=${URI}`, config)
     if (raw.status !== HTTP_OK_200) {
         res.status(raw.status).send('Search Encountered an Error')
     } else {
