@@ -154,7 +154,9 @@ app.post('/user/retrieve-image-text', secure, async (req, res) => {
 
 app.post('/user/retrieve-text-data', secure, async (req, res) => {
     const MAX_QUERY_LENGTH = 1500
+    const { TextDetections } = req.body.data
     const query = 'dogs'
+    debugger
     const URI = encodeURIComponent(query)
     if (URI.length > MAX_QUERY_LENGTH) {
         res.status(414).send('Query string too long')
