@@ -1,6 +1,6 @@
 # Verify API ⚡️
 
-### This is not a public API
+![Status](https://img.shields.io/badge/Status-Alpha-brightgreen)
 
 In order to make calls to any of the following endpoints you need to have a `Authorization Token`. As of right now this is private since the app and API are still in development. \
 There may still be plans to make this more public later on.
@@ -13,7 +13,7 @@ There may still be plans to make this more public later on.
 
 ## Usage
 
-### `/`
+### GET `/`
 
 Test endpoint \
 requires:
@@ -21,11 +21,9 @@ requires:
 ```js
 Authorization: `Bearer ${Token}`
 method: GET
-body: {
-}
 ```
 
-### `/user`
+### GET `/user`
 
 Gets a unique user object \
 requires:
@@ -34,12 +32,12 @@ requires:
 Authorization: `Bearer ${Token}`
 method: GET
 body: {
-    sub: sub,
-    email: email
+    sub: String,
+    email: String
 }
 ```
 
-### `/user/add`
+### GET `/user/add`
 
 Adds a new user \
 requires:
@@ -48,12 +46,12 @@ requires:
 Authorization: `Bearer ${Token}`
 method: POST
 body: {
-    sub: sub,
-    email: email
+    sub: String,
+    email: String
 }
 ```
 
-### `/user/images`
+### GET `/user/images`
 
 gets an array of a users image info\
 requires:
@@ -62,8 +60,8 @@ requires:
 Authorization: `Bearer ${Token}`
 method: GET
 body: {
-    sub: sub,
-    email: email
+    sub: String,
+    email: String
 }
 ```
 
@@ -71,4 +69,41 @@ body: {
 
 ```js
 images: [{ ID: `##############################`, Date: `ISOdate` }, ...]
+```
+
+### GET `/user/get-image_url`
+
+gets a pre-signed S3 upload URL
+requires:
+
+```js
+Authorization: `Bearer ${Token}`
+method: GET
+```
+
+### POST `/user/retrieve-image-text`
+
+Gets a JSON blob of text associated with a JPEG image uploaded to S3
+requires:
+
+```js
+Authorization: `Bearer ${Token}`
+method: POST
+body: {
+    Key: String,
+    Bucket: String
+}
+```
+
+### POST `/user/retrieve-text-data`
+
+Gets a JSON blob of search results associated with a an array of words
+requires:
+
+```js
+Authorization: `Bearer ${Token}`
+method: POST
+body: {
+    query: Array<string>
+}
 ```
