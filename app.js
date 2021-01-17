@@ -4,7 +4,6 @@ var AWS = require('aws-sdk')
 const { v4: uuidv4 } = require('uuid')
 const bodyParser = require('body-parser')
 const { default: axios } = require('axios')
-const env = require('./env')
 require('dotenv').config()
 // express
 const app = express()
