@@ -144,7 +144,7 @@ app.post('/user/retrieve-image-text', secure, async (req, res) => {
     const params = { Image: { S3Object: { Bucket: Bucket, Name: Key } } }
     rekognition.detectText(params, (err, data) => {
         if (err) {
-            res.status(500).send(`${err}`)
+            res.status(500).send(`AWS Error ${err}`)
         } else {
             res.status(200).send(data)
         }
@@ -169,7 +169,6 @@ app.post('/user/retrieve-text-data', secure, async (req, res) => {
     }
 })
 
-// Error handler
 app.use((err, req, res, next) => {
     console.error(err)
     res.status(500).send('Internal Serverless Error')
