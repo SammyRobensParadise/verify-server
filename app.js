@@ -33,7 +33,8 @@ const secure = (req, res, next) => {
     }
 }
 
-var docClient = new AWS.DynamoDB.DocumentClient()
+var documentClient = new AWS.DynamoDB.DocumentClient()
+
 var rekognition = new AWS.Rekognition({
     apiVersion: '2016-06-27',
     accessKeyId: env.AWS_ACCESS_KEY_ID,
@@ -83,7 +84,6 @@ app.post('/user/add', secure, (req, res) => {
         if (err) {
             res.send(err)
         } else {
-            console.log('Added item:', JSON.stringify(data, null, 2))
             res.send({
                 data: data,
                 parameters: params,
@@ -195,6 +195,30 @@ app.post('/user/retrieve-text-data', secure, async (req, res) => {
             } else {
                 res.status(200).send(raw.data)
             }
+        }
+    })
+})
+
+app.post('/user/upload-report-data', secure, async (req, res) => {
+    const { data, key } = req.body
+    const params = {
+        TableName: TABLE,
+        Item: {
+            ID: key.name,
+            email: data.user_email,
+            info: { ...data },
+        },
+    }
+    documentClient.put(params, (err, data) => {
+        if (err) {
+            res.status(500).send(`DynamoDB error: ${err}`)
+        } else {
+            res.status(200).send({
+                data: data,
+                parameters: params,
+                status: HTTP_OK_200,
+                success: SUCCESS,
+            })
         }
     })
 })

@@ -106,4 +106,17 @@ method: POST
 body: {
     query: Array<string>
 }
+
+```
+
+### POST `/user/upload-report-data`
+
+posts a JSON blob of `report` info about an image search
+
+```js
+Authorization: `Bearer ${Token}`
+method: POST
+body: {
+    data: Object
+}
 ```
