@@ -204,7 +204,7 @@ app.post('/user/upload-report-data', secure, async (req, res) => {
     const params = {
         TableName: TABLE,
         Item: {
-            ID: key.name,
+            ID: `${key.name}_${uuidv4()}`,
             email: data.user_email,
             info: { ...data },
         },
