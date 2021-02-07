@@ -223,6 +223,26 @@ app.post('/user/upload-report-data', secure, async (req, res) => {
     })
 })
 
+app.post('/user/get-all-report-data', secure, async (req, res) => {
+    // const { PrimarySortKey } = req.body
+    const params = {
+        TableName: TABLE,
+        indexName: req.query.email,
+    }
+    documentClient.scan(params, (err, data) => {
+        if (err) {
+            res.status(500).send(`DynamoDB error: ${err}`)
+        } else {
+            res.status(200).send({
+                data: data,
+                parameters: params,
+                status: HTTP_OK_200,
+                success: SUCCESS,
+            })
+        }
+    })
+})
+
 app.use((err, req, res, next) => {
     console.error(err)
     res.status(500).send('Internal Serverless Error')
