@@ -224,10 +224,10 @@ app.post('/user/upload-report-data', secure, async (req, res) => {
 })
 
 app.post('/user/get-all-report-data', secure, async (req, res) => {
-    // const { PrimarySortKey } = req.body
+    const { PrimarySortKey } = req.body
     const params = {
         TableName: TABLE,
-        indexName: req.query.email,
+        indexName: PrimarySortKey,
     }
     documentClient.scan(params, (err, data) => {
         if (err) {
